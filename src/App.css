@@ -148,6 +148,106 @@ a {
     flex: 1;
     margin: 0vh 5vh;
 }
+
+.filterBar {
+    display: flex;
+    gap: 1vh;
+    margin: 1.5vh auto;
+    width: min(92%, 900px);
+    overflow-x: auto;
+}
+.filterBar select, .playerSelect select {
+    color: #eee;
+    background: #171717;
+    border: 1px solid #ffffff18;
+    border-radius: 1vh;
+    padding: 1vh;
+    font: inherit;
+}
+.playerSelect {
+    display: flex;
+    align-items: center;
+    gap: .6vh;
+    color: #aaa;
+    font-size: small;
+}
+.playerHint { color: #777; text-align: center; }
+.nextEpisodePrompt {
+    position: absolute;
+    right: 5vw;
+    bottom: 13vh;
+    background: #111e;
+    border: 1px solid #ffffff20;
+    border-radius: 1.5vh;
+    padding: 1.4vh;
+    display: flex;
+    align-items: center;
+    gap: 1vh;
+    box-shadow: 0 1vh 4vh #000;
+}
+.nextEpisodePrompt button { border: 0; border-radius: 1vh; padding: .8vh 1.2vh; background: #e11d48; color: white; }
+.continueWatched {
+    width: 100%;
+    border: 0;
+    border-radius: .7vh;
+    padding: .5vh;
+    margin-top: .6vh;
+    background: #ffffff10;
+    color: #aaa;
+    cursor: pointer;
+}
+.bottomNav { display: none; }
+.installPrompt {
+    position: fixed;
+    right: 2vh;
+    bottom: 2vh;
+    z-index: 10000;
+    border: 1px solid #ffffff20;
+    border-radius: 999px;
+    padding: 1vh 1.6vh;
+    color: white;
+    background: #e11d48;
+    box-shadow: 0 1vh 3vh #000;
+}
+
+@media (max-width: 700px) {
+    body { padding-bottom: 9vh; }
+    .bottomNav {
+        position: fixed;
+        z-index: 9000;
+        left: 1.2vh;
+        right: 1.2vh;
+        bottom: max(1.2vh, env(safe-area-inset-bottom));
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        background: #101010ee;
+        border: 1px solid #ffffff14;
+        backdrop-filter: blur(18px);
+        border-radius: 2vh;
+        box-shadow: 0 1vh 4vh #000;
+    }
+    .bottomNav a { display: flex; flex-direction: column; align-items: center; gap: .3vh; padding: 1.1vh .5vh; color: #777; font-size: 10px; }
+    .bottomNav a i { font-size: 17px; }
+    .bottomNav a.active { color: #fff; }
+    .movieCard img { width: 16vh; }
+    .continueCard, .continueCard img { width: 16vh; }
+    .continueCard img { height: 24vh; }
+    .MainMovie { margin: 2vh; }
+    .MainMovie img { width: 28vh; }
+    .Types { display: none; }
+    .searchBar { margin: 0 2vh; }
+    .searchBar input { width: 100%; font-size: 16px; }
+    .filterBar { width: calc(100% - 4vh); }
+    .filterBar select { flex: 0 0 auto; }
+    .Player { justify-content: center; gap: 1vh; }
+    .embedPlayer { width: 100vw; }
+    .embedFrame { border-radius: 0; }
+    .sourceBar { max-height: 18vh; overflow-y: auto; padding: 0 1vh; }
+    .playerHint { padding: 0 2vh; }
+    .nextEpisodePrompt { left: 2vh; right: 2vh; bottom: 12vh; flex-wrap: wrap; }
+    .installPrompt { bottom: 11vh; }
+    .close { top: max(1.5vh, env(safe-area-inset-top)); right: 1.5vh; z-index: 3; }
+}
 .backdrop {
     top: 0;
     position: fixed;

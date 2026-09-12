@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { buildSources, getSavedProviderId, saveProviderId } from '../lib/providers'
 import { upsertContinueWatching } from '../lib/continueWatching'
 
@@ -50,7 +50,11 @@ export default function EmbedPlayer({
   backdrop,
   episodeTitle,
   startAt = 0,
+  onEnded,
+  onNext,
 }) {
+  const frameRef = useRef(null)
+  const shellRef = useRef(null)
   const sources = useMemo(
     () => buildSources({ type, id, season, episode, startAt }),
     [type, id, season, episode, startAt]
@@ -59,6 +63,8 @@ export default function EmbedPlayer({
     const saved = getSavedProviderId()
     return sources.some((source) => source.id === saved) ? saved : sources[0].id
   })
+  const [subtitleLanguage, setSubtitleLanguage] = useState(() => localStorage.getItem('streak.subtitle') || 'auto')
+  const [speed, setSpeed] = useState(() => localStorage.getItem('streak.speed') || '1')
 
   const active = sources.find((source) => source.id === providerId) || sources[0]
 
@@ -92,10 +98,21 @@ export default function EmbedPlayer({
         currentTime: progress.currentTime,
         duration: progress.duration,
       })
+      if (progress.ended) onEnded?.()
     }
     window.addEventListener('message', onMessage)
     return () => window.removeEventListener('message', onMessage)
-  }, [id, type, title, poster, backdrop, season, episode, episodeTitle])
+  }, [id, type, title, poster, backdrop, season, episode, episodeTitle, onEnded])
+
+  useEffect(() => {
+    const onKey = (event) => {
+      if (event.target?.matches?.('input, select, textarea')) return
+      if (event.key.toLowerCase() === 'f') shellRef.current?.requestFullscreen?.()
+      if (event.key.toLowerCase() === 'n') onNext?.()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onNext])
 
   function selectProvider(nextId) {
     setProviderId(nextId)
@@ -109,9 +126,10 @@ export default function EmbedPlayer({
   }
 
   return (
-    <div className="embedPlayer">
+    <div className="embedPlayer" ref={shellRef}>
       <div className="embedFrame">
         <iframe
+          ref={frameRef}
           key={active.url}
           title={`${title || 'Stream'} — ${active.label}`}
           src={active.url}
@@ -134,7 +152,20 @@ export default function EmbedPlayer({
         <button type="button" className="sourceChip next" onClick={nextSource}>
           Next source
         </button>
+        {onNext && <button type="button" className="sourceChip next" onClick={onNext}>Next episode</button>}
+        <button type="button" className="sourceChip" onClick={() => shellRef.current?.requestFullscreen?.()}>Fullscreen (F)</button>
+        <label className="playerSelect">Subtitles
+          <select value={subtitleLanguage} onChange={(event) => { setSubtitleLanguage(event.target.value); localStorage.setItem('streak.subtitle', event.target.value) }}>
+            <option value="auto">Auto</option><option value="en">English</option><option value="off">Off</option>
+          </select>
+        </label>
+        <label className="playerSelect">Speed
+          <select value={speed} onChange={(event) => { setSpeed(event.target.value); localStorage.setItem('streak.speed', event.target.value) }}>
+            <option value="0.75">0.75×</option><option value="1">1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="2">2×</option>
+          </select>
+        </label>
       </div>
+      <small className="playerHint">Subtitle and speed preferences are remembered. Availability depends on the selected source.</small>
     </div>
   )
 }

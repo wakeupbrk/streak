@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { posterUrl } from '../lib/tmdb'
 import {
   listContinueWatching,
+  markWatched,
   removeContinueWatching,
   resumePath,
   subscribeContinueWatching,
@@ -51,6 +52,13 @@ export default function ContinueWatching() {
                 }}
               >
                 ×
+              </button>
+              <button
+                type="button"
+                className="continueWatched"
+                onClick={() => markWatched(item.type, item.id)}
+              >
+                ✓ Watched
               </button>
             </div>
           )

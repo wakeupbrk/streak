@@ -9,6 +9,8 @@ export default function ShowScraper({
   backdrop,
   episodeTitle,
   startAt,
+  onEnded,
+  onNext,
 }) {
   return (
     <EmbedPlayer
@@ -21,6 +23,8 @@ export default function ShowScraper({
       backdrop={backdrop}
       episodeTitle={episodeTitle}
       startAt={startAt}
+      onEnded={onEnded}
+      onNext={onNext}
     />
   )
 }
