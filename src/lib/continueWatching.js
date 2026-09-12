@@ -90,6 +90,15 @@ export function clearContinueWatching() {
   write([])
 }
 
+export function markWatched(type, id) {
+  if (type === 'movie') {
+    removeContinueWatching(type, id)
+    return
+  }
+  const item = getContinueItem(type, id)
+  if (item) upsertContinueWatching({ ...item, progress: 1, currentTime: item.duration || item.currentTime })
+}
+
 export function subscribeContinueWatching(handler) {
   const wrapped = () => handler(listContinueWatching())
   window.addEventListener(EVENT, wrapped)

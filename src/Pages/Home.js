@@ -13,17 +13,21 @@ export default function Home() {
   const [popular, setPopular] = useState([])
   const [latest, setLatest] = useState([])
   const [popularTV, setPopularTV] = useState([])
+  const [discovery, setDiscovery] = useState([])
 
   useEffect(() => {
     document.title = 'Streak'
     let cancelled = false
     async function fetchData() {
       try {
-        const [trendingData, popularData, latestData, popularTData] = await Promise.all([
+        const [trendingData, popularData, latestData, popularTData, actionData, comedyData, documentaryData] = await Promise.all([
           tmdb('/movie/popular'),
           tmdb('/movie/top_rated'),
           tmdb('/trending/tv/week'),
           tmdb('/tv/top_rated'),
+          tmdb('/discover/movie', { with_genres: 28, sort_by: 'popularity.desc' }),
+          tmdb('/discover/movie', { with_genres: 35, sort_by: 'popularity.desc' }),
+          tmdb('/discover/movie', { with_genres: 99, sort_by: 'vote_average.desc', 'vote_count.gte': 100 }),
         ])
         if (cancelled) return
         const results = trendingData.results || []
@@ -33,6 +37,11 @@ export default function Home() {
         setPopular(cardsFromResults(popularData.results))
         setLatest(cardsFromResults(latestData.results))
         setPopularTV(cardsFromResults(popularTData.results))
+        setDiscovery([
+          { title: 'Action Hits', items: cardsFromResults(actionData.results) },
+          { title: 'Comedy', items: cardsFromResults(comedyData.results) },
+          { title: 'Top Documentaries', items: cardsFromResults(documentaryData.results) },
+        ])
       } catch (error) {
         console.error(error)
       }
@@ -125,6 +134,14 @@ export default function Home() {
               <MovieCard key={m.id} img={m.img} id={m.id} show="true" title={m.title} />
             ))}
           </section>
+          {discovery.map((row) => (
+            <div key={row.title}>
+              <h2 style={{ marginLeft: '1vh' }}>{row.title}</h2>
+              <section className="trendingScroll">
+                {row.items.map((m) => <MovieCard key={m.id} img={m.img} id={m.id} title={m.title} />)}
+              </section>
+            </div>
+          ))}
         </div>
       </div>
       <Footer style={{ position: 'relative', top: '10vh', margin: '1vh' }} />

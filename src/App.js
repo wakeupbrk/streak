@@ -10,6 +10,8 @@ import Explore from './Pages/Explore'
 import { useEffect } from 'react'
 import Login from './Pages/Login'
 import Settings from './Pages/Settings'
+import BottomNav from './Components/BottomNav'
+import InstallPrompt from './Components/InstallPrompt'
 
 export default function App() {
   useEffect(() => {
@@ -29,6 +31,8 @@ export default function App() {
         <Route path="/tv/" element={<Explore type="tv" />} />
         <Route path="*" element={<Error />} />
       </Routes>
+      <InstallPrompt />
+      <BottomNav />
     </BrowserRouter>
   )
 }

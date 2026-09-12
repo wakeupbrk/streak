@@ -1,6 +1,6 @@
 import { useParams, useSearchParams } from 'react-router-dom'
 import Nav from '../Components/Nav'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import MovieCard from '../Components/MovieCard'
 import Footer from '../Components/Footer'
 import Loading from '../Components/Loading'
@@ -20,6 +20,7 @@ export default function Show() {
   const [data, setData] = useState(null)
   const [resume, setResume] = useState(null)
   const [inLibrary, setInLibrary] = useState(false)
+  const [nextCountdown, setNextCountdown] = useState(null)
   const params = useParams()
   const [searchParams] = useSearchParams()
 
@@ -123,6 +124,34 @@ export default function Show() {
       console.error(error)
     }
   }
+
+  const playNextEpisode = useCallback(async () => {
+    setNextCountdown(null)
+    const currentIndex = episodes.findIndex((item) => Number(item.epNumber) === Number(episode))
+    if (currentIndex >= 0 && currentIndex < episodes.length - 1) {
+      playEpisode(episodes[currentIndex + 1].epNumber, season)
+      return
+    }
+    if (season < (data?.number_of_seasons || 1)) {
+      const nextSeason = season + 1
+      await changeSeason(nextSeason)
+      setSeason(nextSeason)
+      setEpisode(1)
+      setPlayer(true)
+    }
+  // Player callbacks are recreated with the active episode state.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [episodes, episode, season, data])
+
+  useEffect(() => {
+    if (nextCountdown == null) return
+    if (nextCountdown <= 0) {
+      playNextEpisode()
+      return
+    }
+    const timer = setTimeout(() => setNextCountdown((value) => value - 1), 1000)
+    return () => clearTimeout(timer)
+  }, [nextCountdown, playNextEpisode])
 
   const language = data?.spoken_languages?.[0]?.english_name || 'English'
   const seasonCount = data?.number_of_seasons || 1
@@ -244,7 +273,16 @@ export default function Show() {
                   ? resume.currentTime
                   : 0
               }
+              onEnded={() => setNextCountdown(10)}
+              onNext={playNextEpisode}
             />
+            {nextCountdown != null && (
+              <div className="nextEpisodePrompt">
+                <span>Next episode in {nextCountdown}s</span>
+                <button type="button" onClick={playNextEpisode}>Play now</button>
+                <button type="button" onClick={() => setNextCountdown(null)}>Cancel</button>
+              </div>
+            )}
           </div>
         )}
       </div>
